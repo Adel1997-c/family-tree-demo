@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>شجرة العائلة - الرئيسية</title>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(to bottom, #f0f4f8, #d9e4ec);
+            text-align: center;
+            padding: 40px;
+            margin: 0;
+        }
+        .navbar {
+            background-color: #2e8b57;
+            padding: 12px;
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin: 0 20px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        h1 {
+            color: #2e3d49;
+            margin-bottom: 20px;
+            margin-top: 30px;
+        }
+        input[type="text"], select {
+            padding: 14px;
+            width: 320px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            margin-top: 10px;
+            border: none;
+            background-color: #2e8b57;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #246f48;
+        }
+        .card {
+            margin-top: 30px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: inline-block;
+            text-align: right;
+            max-width: 400px;
+        }
+        .card h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .card p {
+            margin: 5px 0;
+            color: #555;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <a href="index.html">الرئيسية</a>
+        <a href="tree.html">شجرة العائلة</a>
+        <a href="about.html">عن العائلة</a>
+        <a href="admin.html">الإدارة</a>
+    </div>
+
+    <h1>شجرة عائلة الفواين</h1>
+
+    <input type="text" id="searchInput" placeholder="اكتب اسمك الثلاثي" /><br>
+
+    <label for="branchFilter">اختر الفخذ:</label>
+    <select id="branchFilter">
+        <option value="">الكل</option>
+        <option value="آل سعد">آل سعد</option>
+        <option value="آل راشد">آل راشد</option>
+        <option value="آل فهد">آل فهد</option>
+    </select><br>
+
+    <button onclick="search()">بحث</button>
+
+    <div id="results"></div>
+
+    <script>
+        let familyData = [];
+
+        fetch('familyData.json')
+            .then(response => response.json())
+            .then(data => {
+                familyData = data;
+                console.log("Family data loaded:", familyData);
+            })
+            .catch(error => {
+                console.error('Error loading family data:', error);
+            });
+
+        function search() {
+            const query = document.getElementById('searchInput').value.trim();
+            const selectedBranch = document.getElementById('branchFilter').value;
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            if (query === '') {
+                resultsDiv.innerHTML = 'الرجاء كتابة الاسم الثلاثي.';
+                return;
+            }
+
+            const result = familyData.find(entry => {
+                const matchesName = entry.name.includes(query);
+                const matchesBranch = selectedBranch === '' || entry.branch === selectedBranch;
+                return matchesName && matchesBranch;
+            });
+
+            if (result) {
+                resultsDiv.innerHTML = `
+                    <div class="card">
+                        <h2>${result.name}</h2>
+                        <p><strong>الإخوان:</strong> ${result.brothers}</p>
+                        <p><strong>الأعمام:</strong> ${result.uncles}</p>
+                        <p><strong>معلومات:</strong> ${result.notes}</p>
+                        <p><strong>الفخذ:</strong> ${result.branch}</p>
+                    </div>
+                `;
+            } else {
+                resultsDiv.innerHTML = 'لم يتم العثور على نتائج.';
+            }
+        }
+    </script>
+
+</body>
+</html>

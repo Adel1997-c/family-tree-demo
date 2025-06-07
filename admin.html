@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>إدارة العائلة (Admin)</title>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(to bottom, #f0f4f8, #d9e4ec);
+            text-align: center;
+            padding: 40px;
+            margin: 0;
+        }
+        .navbar {
+            background-color: #2e8b57;
+            padding: 12px;
+            margin-bottom: 20px;
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin: 0 20px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        h1 {
+            color: #2e3d49;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            padding: 12px;
+            width: 300px;
+            margin: 5px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 6px;
+            background-color: #2e8b57;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #246f48;
+        }
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 90%;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <a href="index.html">الرئيسية</a>
+        <a href="tree.html">شجرة العائلة</a>
+        <a href="about.html">عن العائلة</a>
+        <a href="admin.html">الإدارة</a>
+    </div>
+
+    <h1>صفحة الإدارة - إدارة العائلة</h1>
+
+    <div>
+        <input type="text" id="name" placeholder="الاسم الثلاثي" />
+        <input type="text" id="brothers" placeholder="الإخوان" />
+        <input type="text" id="uncles" placeholder="الأعمام" />
+        <input type="text" id="notes" placeholder="ملاحظات" />
+        <input type="text" id="branch" placeholder="الفخذ" />
+        <br>
+        <button onclick="addMember()">إضافة فرد</button>
+        <button onclick="downloadJSON()">تحميل JSON</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>الاسم الثلاثي</th>
+                <th>الإخوان</th>
+                <th>الأعمام</th>
+                <th>ملاحظات</th>
+                <th>الفخذ</th>
+                <th>حذف</th>
+            </tr>
+        </thead>
+        <tbody id="familyTable">
+        </tbody>
+    </table>
+
+    <script>
+        let familyData = [];
+
+        fetch('familyData.json')
+            .then(response => response.json())
+            .then(data => {
+                familyData = data;
+                renderTable();
+            });
+
+        function renderTable() {
+            const table = document.getElementById('familyTable');
+            table.innerHTML = '';
+            familyData.forEach((entry, index) => {
+                const row = `
+                    <tr>
+                        <td>${entry.name}</td>
+                        <td>${entry.brothers}</td>
+                        <td>${entry.uncles}</td>
+                        <td>${entry.notes}</td>
+                        <td>${entry.branch}</td>
+                        <td><button onclick="deleteMember(${index})">حذف</button></td>
+                    </tr>
+                `;
+                table.innerHTML += row;
+            });
+        }
+
+        function addMember() {
+            const name = document.getElementById('name').value.trim();
+            const brothers = document.getElementById('brothers').value.trim();
+            const uncles = document.getElementById('uncles').value.trim();
+            const notes = document.getElementById('notes').value.trim();
+            const branch = document.getElementById('branch').value.trim();
+
+            if (name === '') {
+                alert('الرجاء كتابة الاسم الثلاثي.');
+                return;
+            }
+
+            familyData.push({ name, brothers, uncles, notes, branch });
+            renderTable();
+
+            // Clear inputs
+            document.getElementById('name').value = '';
+            document.getElementById('brothers').value = '';
+            document.getElementById('uncles').value = '';
+            document.getElementById('notes').value = '';
+            document.getElementById('branch').value = '';
+        }
+
+        function deleteMember(index) {
+            if (confirm('هل أنت متأكد من الحذف؟')) {
+                familyData.splice(index, 1);
+                renderTable();
+            }
+        }
+
+        function downloadJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(familyData, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", "familyData.json");
+            dlAnchorElem.click();
+        }
+    </script>
+
+</body>
+</html>
