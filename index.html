@@ -108,38 +108,40 @@
                 console.error('Error loading family data:', error);
             });
 
-        function search() {
-            const query = document.getElementById('searchInput').value.trim();
-            const selectedBranch = document.getElementById('branchFilter').value;
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = '';
+       function search() {
+    const query = document.getElementById('searchInput').value.trim();
+    const selectedBranch = document.getElementById('branchFilter').value;
+    const resultsDiv = document.getElementById('results');
+    resultsDiv.innerHTML = '';
 
-            if (query === '') {
-                resultsDiv.innerHTML = 'الرجاء كتابة الاسم الثلاثي.';
-                return;
-            }
+    if (query === '') {
+        resultsDiv.innerHTML = 'الرجاء كتابة الاسم الأول.';
+        return;
+    }
 
-            const result = familyData.find(entry => {
-                const matchesName = entry.name.includes(query);
-                const matchesBranch = selectedBranch === '' || entry.branch === selectedBranch;
-                return matchesName && matchesBranch;
-            });
+    const result = familyData.find(entry => {
+        const matchesFirstName = entry.firstName === query;
+        const matchesBranch = selectedBranch === '' || entry.branch === selectedBranch;
+        return matchesFirstName && matchesBranch;
+    });
 
-            if (result) {
-                resultsDiv.innerHTML = `
-                    <div class="card">
-                        <h2>${result.name}</h2>
-                        <p><strong>الإخوان:</strong> ${result.brothers}</p>
-                        <p><strong>الأعمام:</strong> ${result.uncles}</p>
-                        <p><strong>معلومات:</strong> ${result.notes}</p>
-                        <p><strong>الفخذ:</strong> ${result.branch}</p>
-                    </div>
-                `;
-            } else {
-                resultsDiv.innerHTML = 'لم يتم العثور على نتائج.';
-            }
-        }
-    </script>
+    if (result) {
+        // Build full name:
+        let fullName = result.firstName;
+        result.ancestors.forEach(ancestor => {
+            fullName += ` بن ${ancestor}`;
+        });
 
-</body>
-</html>
+        resultsDiv.innerHTML = `
+            <div class="card">
+                <h2>${fullName}</h2>
+                <p><strong>الإخوان:</strong> ${result.brothers}</p>
+                <p><strong>الأعمام:</strong> ${result.uncles}</p>
+                <p><strong>ملاحظات:</strong> ${result.notes}</p>
+                <p><strong>الفخذ:</strong> ${result.branch}</p>
+            </div>
+        `;
+    } else {
+        resultsDiv.innerHTML = 'لم يتم العثور على نتائج.';
+    }
+}
