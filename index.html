@@ -81,7 +81,7 @@
 
     <h1>شجرة عائلة الفواين</h1>
 
-    <input type="text" id="searchInput" placeholder="اكتب اسمك الثلاثي" /><br>
+    <input type="text" id="searchInput" placeholder="اكتب الاسم الأول" /><br>
 
     <label for="branchFilter">اختر الفخذ:</label>
     <select id="branchFilter">
@@ -108,40 +108,44 @@
                 console.error('Error loading family data:', error);
             });
 
-       function search() {
-    const query = document.getElementById('searchInput').value.trim();
-    const selectedBranch = document.getElementById('branchFilter').value;
-    const resultsDiv = document.getElementById('results');
-    resultsDiv.innerHTML = '';
+        function search() {
+            const query = document.getElementById('searchInput').value.trim();
+            const selectedBranch = document.getElementById('branchFilter').value;
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
 
-    if (query === '') {
-        resultsDiv.innerHTML = 'الرجاء كتابة الاسم الأول.';
-        return;
-    }
+            if (query === '') {
+                resultsDiv.innerHTML = 'الرجاء كتابة الاسم الأول.';
+                return;
+            }
 
-    const result = familyData.find(entry => {
-        const matchesFirstName = entry.firstName === query;
-        const matchesBranch = selectedBranch === '' || entry.branch === selectedBranch;
-        return matchesFirstName && matchesBranch;
-    });
+            const result = familyData.find(entry => {
+                const matchesFirstName = entry.firstName === query;
+                const matchesBranch = selectedBranch === '' || entry.branch === selectedBranch;
+                return matchesFirstName && matchesBranch;
+            });
 
-    if (result) {
-        // Build full name:
-        let fullName = result.firstName;
-        result.ancestors.forEach(ancestor => {
-            fullName += ` بن ${ancestor}`;
-        });
+            if (result) {
+                // Build full name:
+                let fullName = result.firstName;
+                result.ancestors.forEach(ancestor => {
+                    fullName += ` بن ${ancestor}`;
+                });
 
-        resultsDiv.innerHTML = `
-            <div class="card">
-                <h2>${fullName}</h2>
-                <p><strong>الإخوان:</strong> ${result.brothers}</p>
-                <p><strong>الأعمام:</strong> ${result.uncles}</p>
-                <p><strong>ملاحظات:</strong> ${result.notes}</p>
-                <p><strong>الفخذ:</strong> ${result.branch}</p>
-            </div>
-        `;
-    } else {
-        resultsDiv.innerHTML = 'لم يتم العثور على نتائج.';
-    }
-}
+                resultsDiv.innerHTML = `
+                    <div class="card">
+                        <h2>${fullName}</h2>
+                        <p><strong>الإخوان:</strong> ${result.brothers}</p>
+                        <p><strong>الأعمام:</strong> ${result.uncles}</p>
+                        <p><strong>ملاحظات:</strong> ${result.notes}</p>
+                        <p><strong>الفخذ:</strong> ${result.branch}</p>
+                    </div>
+                `;
+            } else {
+                resultsDiv.innerHTML = 'لم يتم العثور على نتائج.';
+            }
+        }
+    </script>
+
+</body>
+</html>
